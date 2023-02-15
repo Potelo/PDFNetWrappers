@@ -8,6 +8,11 @@
  * SWIG interface file for PHP
  */
 %module(directors="1") PDFNetPHP
+#if PHP_MAJOR_VERSION > 7
+%feature("php:type", "0");
+#endif
+
+%rename (OCGConfig) pdftron::PDF::OCG::Config;
 
 %include "PDFNet_StdStringPHP.i"
 /**
@@ -410,7 +415,7 @@ namespace pdftron {
     arr_hash = Z_ARRVAL_P(&$input);
     array_count = zend_hash_num_elements(arr_hash);
 
-    Unicode* $temp = new Unicode[array_count];
+    pdftron::Unicode* $temp = new pdftron::Unicode[array_count];
 
     for (zend_hash_internal_pointer_reset_ex(arr_hash, &pointer); 
     (data = zend_hash_get_current_data_ex(arr_hash, &pointer)) != NULL && i < array_count; 
@@ -427,7 +432,7 @@ namespace pdftron {
     arr_hash = Z_ARRVAL_PP($input);
     array_count = zend_hash_num_elements(arr_hash);
 
-    Unicode* $temp = new Unicode[array_count];
+    pdftron::Unicode* $temp = new pdftron::Unicode[array_count];
 
     for (zend_hash_internal_pointer_reset_ex(arr_hash, &pointer); 
     zend_hash_get_current_data_ex(arr_hash, (void**) &data, &pointer) == SUCCESS && i < array_count; 
@@ -460,7 +465,7 @@ namespace pdftron {
  */
 %typemap(freearg) const pdftron::Unicode* text_data  
 %{
-    delete[]($1);
+	if($1){ delete[]($1); $1 = 0; }
 %}
 
 //----------------------------------------------------------------------------------------------
@@ -578,7 +583,7 @@ namespace pdftron {
 
 %typemap(freearg) std::vector<double>&
 %{
-    delete ($1);
+	if($1){	delete($1);$1 = 0;}
 %}
 
 //----------------------------------------------------------------------------------------------
@@ -774,6 +779,42 @@ namespace pdftron {
 %rename (WriteUInt64) pdftron::Filters::FilterWriter::WriteInt(UInt64);
 %rename (IsEqual) operator==;
 
+// rename overridden methods of different signatures from base', which causes fatal errors in PHP8
+#if PHP_MAJOR_VERSION > 7
+%ignore pdftron::PDF::Annots::Popup::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::FileAttachment::Create(SDF::SDFDoc&, const Rect&, FileSpec);
+%ignore pdftron::PDF::Annots::FileAttachment::Create(SDF::SDFDoc&, const Rect&, FileSpec, Icon);
+%ignore pdftron::PDF::Annots::FileAttachment::Create(SDF::SDFDoc&, const Rect&, const UString&);
+%ignore pdftron::PDF::Annots::FileAttachment::Create(SDF::SDFDoc&, const Rect&, const UString&, Icon);
+%ignore pdftron::PDF::Annots::FileAttachment::Create(SDF::SDFDoc&, const Rect&, const UString&, const char*);
+%ignore pdftron::PDF::Annots::Ink::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Circle::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Caret::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Caret::Create(SDF::SDFDoc&, const Rect&, Rect);
+%ignore pdftron::PDF::Annots::HighlightAnnot::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::LineAnnot::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::FreeText::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Movie::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::RedactionAnnot::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Screen::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Square::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Squiggly::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::StrikeOut::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Underline::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Watermark::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::RubberStamp::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::RubberStamp::Create(SDF::SDFDoc&, const Rect&, Icon);
+%ignore pdftron::PDF::Annots::Sound::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Sound::Create(SDF::SDFDoc&, const Rect&, Icon);
+%ignore pdftron::PDF::Annots::Sound::Create(SDF::SDFDoc&, const Point&);
+%ignore pdftron::PDF::Annots::Sound::Create(SDF::SDFDoc&, const Point&, Icon);
+%ignore pdftron::PDF::Annots::Text::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Text::Create(SDF::SDFDoc&, const Rect&, const UString&);
+%ignore pdftron::PDF::Annots::Text::Create(SDF::SDFDoc&, const Point&);
+%ignore pdftron::PDF::Annots::Text::Create(SDF::SDFDoc&, const Point&, const UString&);
+%ignore pdftron::PDF::Annots::Link::Create(SDF::SDFDoc&, const Rect&);
+%ignore pdftron::PDF::Annots::Link::Create(SDF::SDFDoc&, const Rect&, const Action&);
+#endif
 //----------------------------------------------------------------------------------------------
 // Fixes the python not recognizing default arguments problem
 // Instead of generating overloaded method for default arguments, only a single method
